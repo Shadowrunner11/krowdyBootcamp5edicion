@@ -1,0 +1,19 @@
+{
+  "name": "krowdybootcamp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Shadowrunner11 <matematicadivina1@gmail.com>",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "dev": "node config/esbuild.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.14.53",
+    "eslint": "^8.21.0",
+    "json-server": "^0.17.0"
+  },
+  "dependencies": {
+    "axios": "^0.27.2"
+  }
+}
