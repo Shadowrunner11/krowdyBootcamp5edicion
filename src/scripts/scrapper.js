@@ -9,6 +9,7 @@ function getToken(tokenKey){
   .replace(tokenKey+'=','')
   .replaceAll('"','')
   .trim()
+  // return document.cookie.match(/ajax.+";/)[0].replaceAll(/"|;/,'')
 }
 
 async function getContacInfo(){
@@ -17,7 +18,7 @@ async function getContacInfo(){
     
     const [contactInfoName] = $(profileSelectors.contactInfo).href.match(/in\/.+\/o/g) ?? []
     const contactInfoURL = `https://www.linkedin.com/voyager/api/identity/profiles${contactInfoName.slice(2,-2)}/profileContactInfo`
-    console.log(token)
+
     const {data: {data}} = await axios.get(contactInfoURL, {
       headers:{
       accept: 'application/vnd.linkedin.normalized+json+2.1',
@@ -49,6 +50,7 @@ async function scrap (){
   const experienceTitles = getEspecificInfo(profileSelectors.experiencesElements)
   const educationTitles = getEspecificInfo(profileSelectors.educationElements)
   const contactInfo = await getContacInfo()
+  
   const profile = {
     name,
     contactInfo,
