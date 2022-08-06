@@ -22,7 +22,7 @@ export async function deleteAndCreateTab(oldId, url){
     
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.log('🚀 ~ file: chrome.js ~ line 24 ~ deleteAndCreateTab ~ error', error);
+    console.log('🚀 ~ chrome.js ~ line 24 ~ deleteAndCreateTab ~ error', error);
     throw error;
   }
     

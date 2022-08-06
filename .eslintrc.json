@@ -25,6 +25,7 @@
             "error",
             "always"
         ],
-        "no-console":"warn"
+        "no-console":"warn",
+        "max-len":"error"
     }
 }

@@ -1,5 +1,9 @@
 import { db } from './config/conexion.dexie';
-import { deleteAndCreateTab, inyectScrapCandidates, inyectScript } from './utils/chrome';
+import { 
+  deleteAndCreateTab, 
+  inyectScrapCandidates, 
+  inyectScript 
+} from './utils/chrome';
 
 
 // eslint-disable-next-line no-undef
@@ -16,10 +20,16 @@ chrome.runtime.onConnect.addListener((port)=>{
   if(!secureChannels.includes(port.name))
     throw new Error('Not secure Channel');
 
-  port.onMessage.addListener(async ({URLsCandidates, profile}, {sender:{tab: {id: tabId, url: tabUrl}}}) =>{
+  port.onMessage.addListener(async (
+    {URLsCandidates, profile},
+    {sender:{tab: {id: tabId, url: tabUrl}}}
+  ) => {
     switch (port.name){
     case secureChannels[0]:{
-      const urlParams = new URLSearchParams(tabUrl.match(/\?.+/)[0].replace('?',''));
+      const urlParams = new URLSearchParams(
+        tabUrl.match(/\?.+/)[0].replace('?','')
+      );
+
       const page = urlParams.has('page') ? Number(urlParams.get('page'))+1 : 2;
       urlParams.set('page', page);
 
@@ -29,7 +39,10 @@ chrome.runtime.onConnect.addListener((port)=>{
           urls : URLsCandidates
         });
         
-        const newTabId = await deleteAndCreateTab(tabId, tabUrl.replace(/\?.+/,'?'+urlParams.toString()));
+        const newTabId = await deleteAndCreateTab(
+          tabId, 
+          tabUrl.replace(/\?.+/,'?'+urlParams.toString())
+        );
 
         inyectScrapCandidates(newTabId);
       }else{

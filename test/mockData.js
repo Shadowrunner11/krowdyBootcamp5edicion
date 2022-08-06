@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export const mockProfiles = [
   'https://www.linkedin.com/in/piero-sandro-0206?miniProfileUrn=urn%3Ali%3Afs_miniProfile%3AACoAADE17_kBJj4XmHhDKVQ-24OXAdpYNAsv678',
   'https://www.linkedin.com/in/phool-antony-herrera-condezo-143004205?miniProfileUrn=urn%3Ali%3Afs_miniProfile%3AACoAADQl68MB7PhbkYUmF_5Ik_NOeMsXMi14Yu4',

@@ -1,6 +1,10 @@
 import { $ } from './selectors';
 
-export async function waitForSelector (selector, intervalTime = 100, timeOut = 5000){
+export async function waitForSelector (
+  selector, 
+  intervalTime = 100, 
+  timeOut = 5000
+) {
   return new Promise((res, rej)=>{
     let cont = 0;
     const interval =  setInterval(() => {

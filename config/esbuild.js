@@ -18,7 +18,7 @@ esbuild.build({
   // target: 'chrome',
   minify: MINIFIED,
   allowOverwrite: true,
-  inject:['dev.env.js']
+  // inject:['.env.js']
 })
   .then(response => console.log(JSON.stringify(response)))
   .catch(err => console.log(err));

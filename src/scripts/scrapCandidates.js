@@ -1,4 +1,4 @@
-import { searchSelectors } from '../config/scrapperSelectors';
+import { searchSelectors } from '../config/scrapper.config';
 import AxiosService from '../service/axiosService';
 import { $$, $ } from '../utils/selectors';
 import { waitForScroll, waitForSelector } from '../utils/waitFor';
@@ -25,7 +25,8 @@ async function initV2(keywords = 'fullstack', startPaginate = 0){
   const urlsCandidates = [];
 
   do{
-    const { included } = await AxiosService.getPaginate10Results(keywords, pagination);
+    const { included } = await AxiosService
+      .getPaginate10Results(keywords, pagination);
   
   
     urlsCandidates.concat(included?.filter(e=> e?.trackingUrn).map(e =>{

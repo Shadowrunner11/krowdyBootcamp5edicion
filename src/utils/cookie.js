@@ -1,3 +1,6 @@
+// se podria crear una funcion muy especifica
+// return document.cookie.match(/ajax.+";/)[0].replaceAll(/"|;/,'')
+
 export function getCookie(cookieKey, cookieString){
   return cookieString
     .split(';')
@@ -5,5 +8,4 @@ export function getCookie(cookieKey, cookieString){
     .replace(cookieKey+'=','')
     .replaceAll('"','')
     .trim();
-  // return document.cookie.match(/ajax.+";/)[0].replaceAll(/"|;/,'')
 }
