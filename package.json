@@ -14,6 +14,9 @@
     "json-server": "^0.17.0"
   },
   "dependencies": {
-    "axios": "^0.27.2"
+    "axios": "^0.27.2",
+    "dayjs": "^1.11.4",
+    "dexie": "^3.2.2",
+    "schm": "^0.4.1"
   }
 }

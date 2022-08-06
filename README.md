@@ -8,7 +8,7 @@ instalar dependencias
 
 iniciar proyecto
 
-```bash
+```bash 
   yarn dev
 ```
 

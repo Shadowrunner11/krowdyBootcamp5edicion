@@ -1,64 +1,95 @@
-import axios from "axios";
-import { profileSelectors } from "../config/scrapperSelectors";
-import { $, $$ } from "../utils/selectors";
-
-function getToken(tokenKey){
-  return document.cookie
-  .split(';')
-  .find(cookie => cookie.includes(tokenKey))
-  .replace(tokenKey+'=','')
-  .replaceAll('"','')
-  .trim()
-  // return document.cookie.match(/ajax.+";/)[0].replaceAll(/"|;/,'')
-}
+import axios from 'axios';
+import { profileSelectors } from '../config/scrapperSelectors';
+import { $, $$ } from '../utils/selectors';
+import { getCookie } from '../utils/cookie';
+import dayjs from 'dayjs';
+import { waitForScroll, waitForSelector } from '../utils/waitFor';
 
 async function getContacInfo(){
   try {
-    const token = getToken('JSESSIONID')
+    const token = getCookie('JSESSIONID', document.cookie);
     
-    const [contactInfoName] = $(profileSelectors.contactInfo).href.match(/in\/.+\/o/g) ?? []
-    const contactInfoURL = `https://www.linkedin.com/voyager/api/identity/profiles${contactInfoName.slice(2,-2)}/profileContactInfo`
+    const [contactInfoName] = $(profileSelectors.contactInfo).href.match(/in\/.+\/o/g) ?? [];
+    const contactInfoURL = `https://www.linkedin.com/voyager/api/identity/profiles${contactInfoName.slice(2,-2)}/profileContactInfo`;
 
+    // To- Do: reemplazar con axios instance y probar
     const {data: {data}} = await axios.get(contactInfoURL, {
       headers:{
-      accept: 'application/vnd.linkedin.normalized+json+2.1',
-      'csrf-token': token,
+        accept: 'application/vnd.linkedin.normalized+json+2.1',
+        'csrf-token': token,
       }
-    })
+    });
     
-    return data
+    return data;
   } catch (error) {
-    console.log("🚀 ~ file: scrapper.js ~ line 30 ~ getContacInfo ~ error", error)  
+
+    // eslint-disable-next-line no-console
+    console.log('🚀 ~ file: scrapper.js ~ line 30 ~ getContacInfo ~ error', error);  
+    throw new Error('error al obtener info del contacto');
   }
 
 }
 
 function getEspecificInfo (selector){
-  const Elements = $$(selector)
-  const titles = []
-  
-  Elements.forEach((listItem) => {
-    const titleElement = $('span[aria-hidden]', listItem)
-    titles.push(titleElement.textContent)
-  })
+  try {
+    const Elements = $$(selector);
+    return Elements.map((listItem) => {
+      if(!$('.pvs-entity__path-node', listItem)){
+        const [title, enterprise, dateStringInfo] = $$('span[aria-hidden]', listItem).map(element => element.textContent);
+    
+        const [parsedRawDate] = dateStringInfo.match(/.+·|\d{4} - \d{4}/) ?? [];
+        const [startDate, endDate] = (parsedRawDate?.replace(/\s|·/g,'').split('-') ?? [])
+          .map(rawDateElement => dayjs(rawDateElement).isValid() ? dayjs(rawDateElement).toDate(): null);
 
-  return titles
+        return {
+          title,
+          enterprise,
+          startDate,
+          endDate
+        };
+      }
+    });
+    
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('🚀 ~ file: scrapper.js ~ line 51 ~ getEspecificInfo ~ error', error);  
+  }
+}
+
+async function getVisibleData() {
+  await waitForSelector('h1');
+  await waitForScroll();
+  
+  const name = $(profileSelectors.name).textContent;
+  const experiences = getEspecificInfo(profileSelectors.experiencesElements);
+  const educations = getEspecificInfo(profileSelectors.educationElements);
+  return {
+    name,
+    experiences,
+    educations
+  };
 }
 
 async function scrap (){
-  const name = $(profileSelectors.name).textContent
-  const experienceTitles = getEspecificInfo(profileSelectors.experiencesElements)
-  const educationTitles = getEspecificInfo(profileSelectors.educationElements)
-  const contactInfo = await getContacInfo()
+  try {
+    const [contactInfo, visibleData] = await Promise.all([getContacInfo(),getVisibleData()]);
+
   
-  const profile = {
-    name,
-    contactInfo,
-    experienceTitles,
-    educationTitles
+    const profile = {
+      ...visibleData,
+      contactInfo,  
+    };
+
+    // eslint-disable-next-line no-undef
+    const port = chrome.runtime.connect({name: 'secureChannelScrapProfile'});
+
+    port.postMessage({profile});
+
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('🚀 ~ file: scrapper.js ~ line 68 ~ scrap ~ error', error);
+    
   }
-  
-  console.log(profile)
 }
 
-scrap()
+scrap();
