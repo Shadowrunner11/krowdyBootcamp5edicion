@@ -1,19 +1,19 @@
 import axios from 'axios';
-import { urls as configUrls} from '../config/scrapper.config';
+import { urls as configUrls } from '../config/scrapper.config';
 import { ListEnumSearch, ProfileCardEnum } from '../constants';
 import { getCookie } from '../utils/cookie';
 
 const { baseUrl, api } = configUrls;
 const baseUrlAxios = baseUrl + api;
-class AxiosService{
+class AxiosService {
   axiosInstance  = axios;
   token = getCookie('JSESSIONID', document.cookie);
 
-  async getLinkedinJson(url){
+  async getLinkedinJson(url) {
     try {
       
-      const {data} = await this.axiosInstance.get(url,
-        {headers:{
+      const { data } = await this.axiosInstance.get(url,
+        { headers:{
           accept: 'application/vnd.linkedin.normalized+json+2.1',
           'csrf-token': this.token,
           'x-li-lang': 'es_ES',
@@ -21,9 +21,8 @@ class AxiosService{
           // 'x-li-deco-include-micro-schema': true,
           'x-restli-protocol-version': '2.0.0',
           // 'x-li-page-instance': '
-        }});
-      
-      console.log(data);
+        } });
+
       return data;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -38,8 +37,8 @@ class AxiosService{
     list = ListEnumSearch.PEOPLE, 
     includeFilter = false, 
     searchId = '00af5496-3e03-4913-9849-c47708dff823'
-  ){
-    const url  = baseUrlAxios + 'search/dash/clusters?' +
+  ) {
+    const url  = `${baseUrlAxios}search/dash/clusters?` +
       'decorationId=' + 
       'com.linkedin.voyager.dash.deco.search.SearchClusterCollection-157'+
       '&origin=SWITCH_SEARCH_VERTICAL'+
@@ -55,8 +54,8 @@ class AxiosService{
   }
 
 
-  async getProfileInfo(profileUrn, card = ProfileCardEnum.second){
-    const url = baseUrlAxios + 'graphql?' + 
+  async getProfileInfo(profileUrn, card = ProfileCardEnum.second) {
+    const url = `${baseUrlAxios}graphql?` + 
     'includeWebMetadata=true&' + 
     'variables=('+
     `profileUrn:${profileUrn},`+

@@ -1,4 +1,4 @@
-export async function inyectScript (path, tabId){
+export async function inyectScript (path, tabId) {
   const options = {
     target: { tabId },
     files: [path]
@@ -12,12 +12,12 @@ export async function inyectScrapCandidates (tabId) {
   return inyectScript('scripts/scrapCandidates.js', tabId);
 }
 
-export async function deleteAndCreateTab(oldId, url){
+export async function deleteAndCreateTab(oldId, url) {
   try {
     // eslint-disable-next-line no-undef
     chrome.tabs.remove(oldId);
     // eslint-disable-next-line no-undef
-    const { id } = await chrome.tabs.create({url});
+    const { id } = await chrome.tabs.create({ url });
     return id;
     
   } catch (error) {

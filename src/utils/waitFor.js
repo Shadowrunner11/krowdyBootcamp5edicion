@@ -9,11 +9,11 @@ export async function waitForSelector (
     let cont = 0;
     const interval =  setInterval(() => {
       cont++;
-      if(cont === timeOut/intervalTime + 1){
+      if(cont === timeOut/intervalTime + 1) {
         clearInterval(interval);
         rej(false);
       }
-      if($(selector)){
+      if($(selector)) {
         clearInterval(interval);
         res(true);
       }
@@ -22,22 +22,22 @@ export async function waitForSelector (
   });
 
 }
-export async function waitForScroll(ofset = 60, time=100, timeOut = 10000){
+export async function waitForScroll(ofset = 60, time=100, timeOut = 10000) {
   let y = 0;
   return new Promise((res,rej)=>{
     const interval = setInterval(()=>{
-      if(y>= (document.body.scrollHeight - document.body.scrollTop)){
+      if(y>= (document.body.scrollHeight - document.body.scrollTop)) {
         clearInterval(interval);
         res(true);
       }
 
       y+=ofset;
 
-      if(timeOut/time+1 > y/ofset+2*ofset){
+      if(timeOut/time+1 > y/ofset+2*ofset) {
         clearInterval(interval);
         rej(false);
       }
-      window.scrollTo({top: y, behavior: 'smooth'});
+      window.scrollTo({ top: y, behavior: 'smooth' });
     },time);
 
   });

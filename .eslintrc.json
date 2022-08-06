@@ -26,6 +26,16 @@
             "always"
         ],
         "no-console":"warn",
-        "max-len":"error"
+        "max-len":"error",
+        "space-before-blocks": "error",
+        "semi-spacing":"error",
+        "brace-style":[
+            "error",
+            "1tbs"
+        ],
+        "object-curly-spacing":[
+            "error",
+            "always"
+        ]
     }
 }

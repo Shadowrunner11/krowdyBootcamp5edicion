@@ -1,13 +1,16 @@
 import axios from 'axios';
-import { profileSelectors, urls as configUrls} from '../config/scrapper.config';
+import { 
+  profileSelectors, 
+  urls as configUrls 
+} from '../config/scrapper.config';
 import { $, $$ } from '../utils/selectors';
 import { getCookie } from '../utils/cookie';
 import { waitForScroll, waitForSelector } from '../utils/waitFor';
 
 
-async function getContacInfo(){
+async function getContacInfo() {
   try {
-    const {baseUrl, contactInfo, api} = configUrls;
+    const { baseUrl, contactInfo, api } = configUrls;
     const token = getCookie('JSESSIONID', document.cookie);
     
     const [contactInfoName] = $(profileSelectors.contactInfo).href
@@ -16,7 +19,7 @@ async function getContacInfo(){
     const contactInfoURL = baseUrl + api + contactInfo(contactInfoName);
 
     // To- Do: reemplazar con axios instance y probar
-    const {data: {data}} = await axios.get(contactInfoURL, {
+    const { data: { data } } = await axios.get(contactInfoURL, {
       headers:{
         accept: 'application/vnd.linkedin.normalized+json+2.1',
         'csrf-token': token,
@@ -32,12 +35,12 @@ async function getContacInfo(){
 
 }
 
-function getEspecificInfo (selector){
+function getEspecificInfo (selector) {
   try {
     const Elements = $$(selector);
     
     return Elements.map((listItem) => {
-      if(!$('.pvs-entity__path-node', listItem)){
+      if(!$('.pvs-entity__path-node', listItem)) {
         const [
           title, 
           enterprise, 
@@ -76,7 +79,7 @@ async function getVisibleData() {
   };
 }
 
-async function scrap (){
+async function scrap () {
   try {
     const [contactInfo, visibleData] = await Promise.all([
       getContacInfo(),
@@ -89,9 +92,9 @@ async function scrap (){
     };
 
     // eslint-disable-next-line no-undef
-    const port = chrome.runtime.connect({name: 'secureChannelScrapProfile'});
+    const port = chrome.runtime.connect({ name: 'secureChannelScrapProfile' });
 
-    port.postMessage({profile});
+    port.postMessage({ profile });
 
   } catch (error) {
     // eslint-disable-next-line no-console

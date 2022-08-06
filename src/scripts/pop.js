@@ -8,7 +8,7 @@ $('#search-form').addEventListener('submit', async (e)=>{
   const url = baseUrl+'search/results/people/?keywords='+ keyword;
 
   // eslint-disable-next-line no-undef
-  const { id } = await chrome.tabs.create({url});
+  const { id } = await chrome.tabs.create({ url });
 
   const options = {
     target: { tabId: id },
