@@ -17,7 +17,6 @@ chrome.action.onClicked.addListener((tab)=> {
 
 // eslint-disable-next-line no-undef
 chrome.runtime.onConnect.addListener((port)=> {
-
   if(!Object.values(secureChannels).includes(port.name))
     throw new Error('Not secure Channel');
 
