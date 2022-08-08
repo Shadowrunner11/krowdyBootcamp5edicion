@@ -1,10 +1,12 @@
 import { db } from './config/conexion.dexie';
+import { SecureChannelsEnum as secureChannels } from './constants';
 import FetchService from './service/fetchService';
 import {
   deleteAndCreateTab,
   inyectScrapCandidates,
   inyectScript
 } from './utils/chrome';
+import { addUrlParams, getUrlParams } from './utils/urls';
 
 
 // eslint-disable-next-line no-undef
@@ -12,6 +14,19 @@ chrome.action.onClicked.addListener((tab)=> {
   inyectScrapCandidates(tab.id);
   // inyectScript('scripts/scrapper.js', tab.id);
 });
+
+// eslint-disable-next-line no-undef
+chrome.runtime.onConnect.addListener((port)=> {
+
+  if(!Object.values(secureChannels).includes(port.name))
+    throw new Error('Not secure Channel');
+
+  port.onMessage.addListener(_portOnmessageHandler);
+});
+
+/* chrome.webNavigation.onCompleted.addListener((a)=>{
+  console.log(a.tabId)
+}, {hostPrefix: 'https://www.linkedin.com/in/'}) */
 
 function saveUrlsCandidates (urlsCandidates) {
   if(!urlsCandidates.length) throw new Error('Not enough data');
@@ -28,65 +43,60 @@ function saveUrlsCandidates (urlsCandidates) {
   });
 }
 
-// eslint-disable-next-line no-undef
-chrome.runtime.onConnect.addListener((port)=> {
-  const secureChannels = [
-    'secureChannelScrap',
-    'secureChannelScrapProfile',
-    'secureChannelScrapV2'
-  ];
+function setNextPageParam(tabUrl) {
+  const urlParams = getUrlParams(tabUrl);
 
-  if(!secureChannels.includes(port.name))
-    throw new Error('Not secure Channel');
+  const actualPage = Number(urlParams.get('page') ?? 1);
+  const nextPage = actualPage + 1;
 
-  port.onMessage.addListener(async (
-    { urlsCandidates, profile },
-    { sender: { tab: { id: tabId, url: tabUrl } } }
-  ) => {
-    switch (port.name) {
-    case secureChannels[0]:{
-      const urlParams = new URLSearchParams(
-        tabUrl.match(/\?.+/)[0].replace('?','')
-      );
+  urlParams.set('page', nextPage);
 
-      const page = urlParams.has('page') ? Number(urlParams.get('page'))+1 : 2;
-      urlParams.set('page', page);
+  return [nextPage, addUrlParams(tabUrl,urlParams)];
+}
 
-      if(page <= 3) {
+async function scrapProfile(tabUrl, tabId, urlsCandidates) {
+  const [nextPage, nextUrl] = setNextPageParam(tabUrl);
 
-        saveUrlsCandidates(urlsCandidates);
-        const newTabId = await deleteAndCreateTab(
-          tabId,
-          tabUrl.replace(/\?.+/,'?'+urlParams.toString())
-        );
+  if(nextPage <= 3) {
+    saveUrlsCandidates(urlsCandidates);
+    const newTabId = await deleteAndCreateTab(tabId,nextUrl);
+    inyectScrapCandidates(newTabId);
+  } else {
+    const newTabId = await deleteAndCreateTab(tabId, urlsCandidates[0]);
+    inyectScript('scripts/scrapper.js', newTabId);
+  }
+}
 
-        inyectScrapCandidates(newTabId);
-      } else {
-        const newTabId = await deleteAndCreateTab(tabId, urlsCandidates[0]);
-        inyectScript('scripts/scrapper.js', newTabId);
+const _portOnmessageHandler = async (msg, port) => {
+  const { urlsCandidates, profile } = msg;
+
+  const {
+    name,
+    sender: {
+      tab: {
+        id: tabId,
+        url: tabUrl
       }
-
-      break;
     }
-    case secureChannels[1]:{
-      db.profiles.add(profile);
-      const [urlsRaw] = await db.urlsCandidate.toArray();
-      // eslint-disable-next-line no-undef
-      const newTabId = await deleteAndCreateTab(tabId, urlsRaw.urls[2]);
+  } = port;
 
-      inyectScript('scripts/scrapper.js', newTabId);
+  switch (name) {
+  case secureChannels.scrapProfiles:
+    scrapProfile(tabUrl, tabId, urlsCandidates);
+    break;
+  case secureChannels.scrapv1:{
+    db.profiles.add(profile);
+    const [urlsRaw] = await db.urlsCandidate.toArray();
+    const newTabId = await deleteAndCreateTab(tabId, urlsRaw.urls[2]);
 
-      break;
-    }
-    case(secureChannels[2]):
-      saveUrlsCandidates(urlsCandidates);
-      break;
-    default:
-      break;
-    }
-  });
-});
+    inyectScript('scripts/scrapper.js', newTabId);
 
-/* chrome.webNavigation.onCompleted.addListener((a)=>{
-  console.log(a.tabId)
-}, {hostPrefix: 'https://www.linkedin.com/in/'}) */
+    break;
+  }
+  case(secureChannels.scrapProfilesV2):
+    saveUrlsCandidates(urlsCandidates);
+    break;
+  default:
+    break;
+  }
+};

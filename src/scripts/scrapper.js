@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { 
-  profileSelectors, 
-  urls as configUrls 
+import {
+  profileSelectors,
+  urls as configUrls
 } from '../config/scrapper.config';
 import { $, $$ } from '../utils/selectors';
 import { getCookie } from '../utils/cookie';
@@ -12,7 +12,7 @@ async function getContacInfo() {
   try {
     const { baseUrl, contactInfo, api } = configUrls;
     const token = getCookie('JSESSIONID', document.cookie);
-    
+
     const [contactInfoName] = $(profileSelectors.contactInfo).href
       .match(/in\/.+\/o/g) ?? [];
 
@@ -20,16 +20,16 @@ async function getContacInfo() {
 
     // To- Do: reemplazar con axios instance y probar
     const { data: { data } } = await axios.get(contactInfoURL, {
-      headers:{
-        accept: 'application/vnd.linkedin.normalized+json+2.1',
+      headers: {
+        accept      : 'application/vnd.linkedin.normalized+json+2.1',
         'csrf-token': token,
       }
     });
-    
+
     return data;
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.log('🚀 scrapper.js ~ line 30 ~ getContacInfo ~ error', error);  
+    console.log('🚀 scrapper.js ~ line 30 ~ getContacInfo ~ error', error);
     throw new Error('error al obtener info del contacto');
   }
 
@@ -38,20 +38,20 @@ async function getContacInfo() {
 function getEspecificInfo (selector) {
   try {
     const Elements = $$(selector);
-    
+
     return Elements.map((listItem) => {
       if(!$('.pvs-entity__path-node', listItem)) {
         const [
-          title, 
-          enterprise, 
+          title,
+          enterprise,
           dateStringInfo
         ] = $$('span[aria-hidden]', listItem)
-          .map(element => element.textContent);  
-  
+          .map(element => element.textContent);
+
         const [parsedRawDate] = dateStringInfo.match(/.+·|\d{4} - \d{4}/) ?? [];
 
         const [
-          startDate, 
+          startDate,
           endDate
         ] = (parsedRawDate?.replace(/\s|·/g,'').split('-') ?? [])
           .map(rawDateElement => parsedRawDate(rawDateElement));
@@ -61,14 +61,14 @@ function getEspecificInfo (selector) {
     });
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.log('🚀scrapper.js ~ line 51 ~ getEspecificInfo ~ error', error);  
+    console.log('🚀scrapper.js ~ line 51 ~ getEspecificInfo ~ error', error);
   }
 }
 
 async function getVisibleData() {
   await waitForSelector('h1');
   await waitForScroll();
-  
+
   const name = $(profileSelectors.name).textContent;
   const experiences = getEspecificInfo(profileSelectors.experiencesElements);
   const educations = getEspecificInfo(profileSelectors.educationElements);
@@ -85,10 +85,10 @@ async function scrap () {
       getContacInfo(),
       getVisibleData()
     ]);
-  
+
     const profile = {
       ...visibleData,
-      contactInfo,  
+      contactInfo,
     };
 
     // eslint-disable-next-line no-undef
@@ -99,7 +99,7 @@ async function scrap () {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log('🚀 ~ file: scrapper.js ~ line 68 ~ scrap ~ error', error);
-    
+
   }
 }
 

@@ -11,7 +11,7 @@ async function init () {
 
   const URLsCandidates = $$(searchSelectors.paginateResultsContainer)
     .map(element=>$('.app-aware-link', element).href);
-  
+
 
   // eslint-disable-next-line no-undef
   const port = chrome.runtime.connect({ name: 'secureChannelScrap' });
@@ -27,7 +27,7 @@ async function initV2(keywords = 'fullstack', startPaginate = 0) {
   do{
     const { included } = await AxiosService
       .getPaginate10Results(keywords, pagination);
-  
+
     const nextCandidates = included
       ?.filter(includedElement=> includedElement?.trackingUrn)
       .map(filteredIncluded => {
@@ -36,9 +36,9 @@ async function initV2(keywords = 'fullstack', startPaginate = 0) {
         return {
           raw,
           profileVar: profileVar.replace('miniP','p').replace('Afs','Afsd')
-        }; 
+        };
       }) ?? [];
-  
+
     urlsCandidates = [...urlsCandidates, ...nextCandidates ];
 
     pagination+=10;
