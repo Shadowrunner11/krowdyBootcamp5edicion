@@ -1,8 +1,8 @@
 import { $ } from './selectors';
 
 export async function waitForSelector (
-  selector, 
-  intervalTime = 100, 
+  selector,
+  intervalTime = 100,
   timeOut = 5000
 ) {
   return new Promise((res, rej)=>{
@@ -17,7 +17,7 @@ export async function waitForSelector (
         clearInterval(interval);
         res(true);
       }
-      
+
     }, 500);
   });
 

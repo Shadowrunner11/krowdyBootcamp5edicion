@@ -13,10 +13,6 @@
             "error",
             2
         ],
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
         "quotes": [
             "error",
             "single"
@@ -36,6 +32,9 @@
         "object-curly-spacing":[
             "error",
             "always"
-        ]
+        ],
+        "no-invalid-regexp":"error",
+        "key-spacing":["error", {"align" :"colon"}],
+        "no-trailing-spaces":"error"
     }
 }

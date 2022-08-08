@@ -1,9 +1,9 @@
 import { db } from './config/conexion.dexie';
 import FetchService from './service/fetchService';
-import { 
-  deleteAndCreateTab, 
-  inyectScrapCandidates, 
-  inyectScript 
+import {
+  deleteAndCreateTab,
+  inyectScrapCandidates,
+  inyectScript
 } from './utils/chrome';
 
 
@@ -17,9 +17,13 @@ function saveUrlsCandidates (urlsCandidates) {
   if(!urlsCandidates.length) throw new Error('Not enough data');
   // Si falla el servicio remoto, guardar localmente en indexDB
   FetchService.createUrlProfiles(urlsCandidates).catch(async err => {
-    console.log(err);
+    // eslint-disable-next-line no-console
+    console.log(
+      '🚀 ~ file: sw.js ~ line 26 ~ FetchService.createUrlProfiles ~ err', err
+    );
+
     db.urlsCandidate.add({
-      urls : urlsCandidates
+      urls: urlsCandidates
     });
   });
 }
@@ -31,13 +35,13 @@ chrome.runtime.onConnect.addListener((port)=> {
     'secureChannelScrapProfile',
     'secureChannelScrapV2'
   ];
-  
+
   if(!secureChannels.includes(port.name))
     throw new Error('Not secure Channel');
 
   port.onMessage.addListener(async (
     { urlsCandidates, profile },
-    { sender:{ tab: { id: tabId, url: tabUrl } } }
+    { sender: { tab: { id: tabId, url: tabUrl } } }
   ) => {
     switch (port.name) {
     case secureChannels[0]:{
@@ -52,7 +56,7 @@ chrome.runtime.onConnect.addListener((port)=> {
 
         saveUrlsCandidates(urlsCandidates);
         const newTabId = await deleteAndCreateTab(
-          tabId, 
+          tabId,
           tabUrl.replace(/\?.+/,'?'+urlParams.toString())
         );
 
@@ -61,9 +65,9 @@ chrome.runtime.onConnect.addListener((port)=> {
         const newTabId = await deleteAndCreateTab(tabId, urlsCandidates[0]);
         inyectScript('scripts/scrapper.js', newTabId);
       }
-      
+
       break;
-    }          
+    }
     case secureChannels[1]:{
       db.profiles.add(profile);
       const [urlsRaw] = await db.urlsCandidate.toArray();
@@ -80,7 +84,7 @@ chrome.runtime.onConnect.addListener((port)=> {
     default:
       break;
     }
-  });    
+  });
 });
 
 /* chrome.webNavigation.onCompleted.addListener((a)=>{
