@@ -22,6 +22,7 @@ export async function waitForSelector (
   });
 
 }
+
 export async function waitForScroll(ofset = 60, time=100, timeOut = 10000) {
   let y = 0;
   return new Promise((res,rej)=>{

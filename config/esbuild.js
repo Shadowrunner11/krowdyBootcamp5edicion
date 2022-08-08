@@ -15,13 +15,13 @@ const { DEPLOYMENT } = process.env;
 
 esbuild.build({
   entryPoints,
-  watch: DEPLOYMENT==='DEV',
-  bundle: true,
-  outdir: 'dist',
+  watch         : DEPLOYMENT==='DEV',
+  bundle        : true,
+  outdir        : 'dist',
   // target: 'chrome',
-  minify: !(DEPLOYMENT==='DEV'),
+  minify        : !(DEPLOYMENT==='DEV'),
   allowOverwrite: true,
-  logLevel: DEPLOYMENT==='DEV'? 'debug' :'silent',
+  logLevel      : DEPLOYMENT==='DEV'? 'debug' :'silent',
   // inject:['config/global.js']
 })
   .then(response => console.log(JSON.stringify(response)))

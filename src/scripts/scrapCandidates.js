@@ -1,5 +1,6 @@
 import { searchSelectors } from '../config/scrapper.config';
 import AxiosService from '../service/axiosService';
+import { filterOutNill } from '../utils/keys';
 import { $$, $ } from '../utils/selectors';
 import { waitForScroll, waitForSelector } from '../utils/waitFor';
 
@@ -28,16 +29,7 @@ async function initV2(keywords = 'fullstack', startPaginate = 0) {
     const { included } = await AxiosService
       .getPaginate10Results(keywords, pagination);
 
-    const nextCandidates = included
-      ?.filter(includedElement=> includedElement?.trackingUrn)
-      .map(filteredIncluded => {
-        const raw = filteredIncluded?.navigationContext?.url;
-        const [profileVar] = raw.match(/urn.+/) ?? [];
-        return {
-          raw,
-          profileVar: profileVar.replace('miniP','p').replace('Afs','Afsd')
-        };
-      }) ?? [];
+    const nextCandidates = getNextCandidates(included);
 
     urlsCandidates = [...urlsCandidates, ...nextCandidates ];
 
@@ -53,6 +45,22 @@ async function initV2(keywords = 'fullstack', startPaginate = 0) {
   return urlsCandidates;
 }
 
+function getNextCandidates(included) {
+  filterOutNill(included, includedElement =>{
+    if(includedElement?.trackingUrn) {
+      const raw = includedElement?.navigationContext?.url;
+      const [profileVar] = raw.match(/urn.+/) ?? [];
+      return {
+        raw,
+        profileVar: profileVar
+          .replace('miniP','p')
+          .replace('Afs','Afsd')
+      };
+    }
+
+    return null;
+  });
+}
 // init();
 
 initV2();

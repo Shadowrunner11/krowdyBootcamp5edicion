@@ -1,3 +1,4 @@
+import { validate } from 'schm';
 import { db } from './config/conexion.dexie';
 import { SecureChannelsEnum as secureChannels } from './constants';
 import FetchService from './service/fetchService';
@@ -27,10 +28,21 @@ chrome.runtime.onConnect.addListener((port)=> {
   console.log(a.tabId)
 }, {hostPrefix: 'https://www.linkedin.com/in/'}) */
 
-function saveUrlsCandidates (urlsCandidates) {
+async function saveUrlsCandidates (urlsCandidates) {
   if(!urlsCandidates.length) throw new Error('Not enough data');
+
+  const urlsCandidatesFiltered = await Promise.all(urlsCandidates
+    .filter(async (urlsCandidate) => {
+      try {
+        await validate(urlsCandidate);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    })
+  );
   // Si falla el servicio remoto, guardar localmente en indexDB
-  FetchService.createUrlProfiles(urlsCandidates).catch(async err => {
+  FetchService.createUrlProfiles(urlsCandidatesFiltered).catch(async err => {
     // eslint-disable-next-line no-console
     console.log(
       '🚀 ~ file: sw.js ~ line 26 ~ FetchService.createUrlProfiles ~ err', err
@@ -53,7 +65,7 @@ function setNextPageParam(tabUrl) {
   return [nextPage, addUrlParams(tabUrl,urlParams)];
 }
 
-async function scrapProfile(tabUrl, tabId, urlsCandidates) {
+async function scrapProfiles(tabUrl, tabId, urlsCandidates) {
   const [nextPage, nextUrl] = setNextPageParam(tabUrl);
 
   if(nextPage <= 3) {
@@ -81,7 +93,7 @@ const _portOnmessageHandler = async (msg, port) => {
 
   switch (name) {
   case secureChannels.scrapProfiles:
-    scrapProfile(tabUrl, tabId, urlsCandidates);
+    scrapProfiles(tabUrl, tabId, urlsCandidates);
     break;
   case secureChannels.scrapv1:{
     db.profiles.add(profile);
@@ -92,7 +104,7 @@ const _portOnmessageHandler = async (msg, port) => {
 
     break;
   }
-  case(secureChannels.scrapProfilesV2):
+  case secureChannels.scrapProfilesV2:
     saveUrlsCandidates(urlsCandidates);
     break;
   default:

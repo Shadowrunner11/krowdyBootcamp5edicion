@@ -12,7 +12,7 @@ $('#search-form').addEventListener('submit', async (e)=>{
 
   const options = {
     target: { tabId: id },
-    files: ['scripts/scrapCandidates.js']
+    files : ['scripts/scrapCandidates.js']
   };
 
   // eslint-disable-next-line no-undef
