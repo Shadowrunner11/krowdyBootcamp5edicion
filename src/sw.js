@@ -11,9 +11,9 @@ import { addUrlParams, getUrlParams } from './utils/urls';
 
 
 // eslint-disable-next-line no-undef
-chrome.action.onClicked.addListener((tab)=> {
-  inyectScrapCandidates(tab.id);
-  // inyectScript('scripts/scrapper.js', tab.id);
+chrome.action.onClicked.addListener(({ id })=> {
+  // inyectScrapCandidates(id);
+  inyectScript('scripts/scrapper.js', id);
 });
 
 // eslint-disable-next-line no-undef

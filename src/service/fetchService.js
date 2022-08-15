@@ -1,14 +1,24 @@
 class FetchService {
-  urlApi = 'http://localhost:3000/profiles';
+  urlApi = 'http://localhost:3000/';
 
-  async createUrlProfiles(urlsCandidates) {
-    return fetch(this.urlApi ,{
+  optionsPost(body) {
+    return {
       method : 'POST',
-      body   : JSON.stringify({ urlsCandidates }),
+      body   : JSON.stringify(body),
       headers: {
         'Content-type': 'application/json; charset=UTF-8'
       }
-    } );
+    };
+  }
+
+  async createUrlProfiles(urlsCandidates) {
+    return fetch(
+      this.urlApi+'/urlProfiles' ,
+      this.optionsPost({ urlsCandidates })
+    );
+  }
+  async creatProfile(profile) {
+    return fetch(this.urlApi+'/profiles',this.optionsPost({ profile }));
   }
 }
 
